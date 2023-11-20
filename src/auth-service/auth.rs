@@ -45,32 +45,32 @@ impl Auth for AuthService {
 
         let req = request.into_inner();
 
-        let result: Option<String> = self
+        let result = self
             .users_service
             .lock()
             .expect("lock should not be poisoned")
             .get_user_uuid(req.username, req.password);
 
-        // Match on `result`. If `result` is `None` return a SignInResponse with a the `status_code` set to `Failure`
-        // and `user_uuid`/`session_token` set to empty strings.
         let user_uuid = match result {
             Some(uuid) => uuid,
             None => {
-                return Ok(Response::new(SignInResponse {
+                let reply = SignInResponse {
                     status_code: StatusCode::Failure.into(),
-                    user_uuid: "".to_string(),
-                    session_token: "".to_string(),
-                }))
+                    user_uuid: "".to_owned(),
+                    session_token: "".to_owned(),
+                };
+
+                return Ok(Response::new(reply));
             }
         };
 
-        let session_token: String = self
+        let session_token = self
             .sessions_service
             .lock()
             .expect("lock should not be poisoned")
             .create_session(&user_uuid);
 
-        let reply: SignInResponse = SignInResponse {
+        let reply = SignInResponse {
             status_code: StatusCode::Success.into(),
             user_uuid,
             session_token,
@@ -87,22 +87,28 @@ impl Auth for AuthService {
 
         let req = request.into_inner();
 
-        let result: Result<(), String> = self
+        let result = self
             .users_service
             .lock()
             .expect("lock should not be poisoned")
             .create_user(req.username, req.password);
 
-        let reply = match result {
-            Ok(_) => SignUpResponse {
-                status_code: StatusCode::Success.into(),
-            },
-            Err(_) => SignUpResponse {
-                status_code: StatusCode::Failure.into(),
-            },
-        };
+        match result {
+            Ok(_) => {
+                let reply = SignUpResponse {
+                    status_code: StatusCode::Success.into(),
+                };
 
-        Ok(Response::new(reply))
+                Ok(Response::new(reply))
+            }
+            Err(_) => {
+                let reply = SignUpResponse {
+                    status_code: StatusCode::Failure.into(),
+                };
+
+                Ok(Response::new(reply))
+            }
+        }
     }
 
     async fn sign_out(
@@ -117,7 +123,8 @@ impl Auth for AuthService {
             .lock()
             .expect("lock should not be poisoned")
             .delete_session(&req.session_token);
-        let reply: SignOutResponse = SignOutResponse {
+
+        let reply = SignOutResponse {
             status_code: StatusCode::Success.into(),
         };
 

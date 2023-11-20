@@ -14,15 +14,16 @@ pub struct SessionsImpl {
 
 impl Sessions for SessionsImpl {
     fn create_session(&mut self, user_uuid: &str) -> String {
-        let session: String = Uuid::new_v4().to_string(); // Create a new session using Uuid::new_v4().
-
+        let session = Uuid::new_v4().to_string();
         self.uuid_to_session
-            .insert(user_uuid.to_string(), session.clone());
+            .insert(user_uuid.to_owned(), session.clone());
         session
     }
 
     fn delete_session(&mut self, user_uuid: &str) {
-        self.uuid_to_session.remove(user_uuid);
+        if self.uuid_to_session.contains_key(user_uuid) {
+            self.uuid_to_session.remove(user_uuid);
+        }
     }
 }
 
