@@ -19,7 +19,7 @@ path = "src/health-check-service/main.rs"
 
 [dependencies]
 tonic = "0.10.2" # used by all
-prost = "0.12.2" # used by all
+prost = "0.12.3" # used by all
 tokio = { version = "1.34", features = [
   "macros",
   "rt-multi-thread",

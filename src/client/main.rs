@@ -3,9 +3,6 @@ use std::env;
 
 use authentication::auth_client::AuthClient;
 use authentication::{SignInRequest, SignOutRequest, SignUpRequest};
-use tonic::{Request, Response};
-
-use crate::authentication::{SignInResponse, SignOutResponse, SignUpResponse};
 
 pub mod authentication {
     tonic::include_proto!("authentication");
@@ -47,31 +44,31 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     match &cli.command {
         Some(Commands::SignIn { username, password }) => {
-            let request: Request<SignInRequest> = Request::new(SignInRequest {
+            let request = tonic::Request::new(SignInRequest {
                 username: username.clone(),
                 password: password.clone(),
             });
 
-            let response: SignInResponse = client.sign_in(request).await?.into_inner();
+            let response = client.sign_in(request).await?.into_inner();
 
             println!("{:?}", response);
         }
         Some(Commands::SignUp { username, password }) => {
-            let request: Request<SignUpRequest> = Request::new(SignUpRequest {
+            let request = tonic::Request::new(SignUpRequest {
                 username: username.clone(),
                 password: password.clone(),
             });
 
-            let response: Response<SignUpResponse> = client.sign_up(request).await?;
+            let response = client.sign_up(request).await?;
 
             println!("{:?}", response.into_inner());
         }
         Some(Commands::SignOut { session_token }) => {
-            let request: Request<SignOutRequest> = Request::new(SignOutRequest {
+            let request = tonic::Request::new(SignOutRequest {
                 session_token: session_token.clone(),
             });
 
-            let response: Response<SignOutResponse> = client.sign_out(request).await?;
+            let response = client.sign_out(request).await?;
 
             println!("{:?}", response.into_inner());
         }
