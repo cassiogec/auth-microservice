@@ -5,8 +5,6 @@ use authentication::{SignInRequest, SignOutRequest, SignUpRequest};
 use tokio::time::{sleep, Duration};
 use uuid::Uuid;
 
-use crate::authentication::StatusCode;
-
 pub mod authentication {
     tonic::include_proto!("authentication");
 }
